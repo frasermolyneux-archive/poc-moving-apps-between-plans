@@ -149,7 +149,7 @@ resource "azurerm_linux_function_app" "fa_01" {
   // Consider replacing this with managed identity access over access keys
   storage_account_name       = azurerm_storage_account.fa_01[each.value].name
   storage_account_access_key = azurerm_storage_account.fa_01[each.value].primary_access_key
-  service_plan_id            = azurerm_service_plan.fa_01[each.value].id
+  service_plan_id            = azurerm_service_plan.fa_02[each.value].id
 
   // Set the virtual network integration that will be used for *outbound* traffic from the function app
   virtual_network_subnet_id = azurerm_subnet.fa_01[each.value].id
