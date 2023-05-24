@@ -148,7 +148,7 @@ resource "azurerm_linux_function_app" "fa_01" {
   service_plan_id            = azurerm_service_plan.fa_01[each.value].id
 
   // Set the virtual network integration that will be used for *outbound* traffic from the function app
-  virtual_network_subnet_id = azurerm_subnet.function_app[each.value].id
+  virtual_network_subnet_id = azurerm_subnet.fa_01[each.value].id
 
   // Consider setting other site_config settings as appropriate for your function app in production such as app insights etc.
   site_config {

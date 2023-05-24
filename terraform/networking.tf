@@ -22,7 +22,7 @@ resource "azurerm_subnet" "endpoints" {
 }
 
 // Create a subnet that will host the Function App's App Service Plan for the VNet integration
-resource "azurerm_subnet" "fa-01" {
+resource "azurerm_subnet" "fa_01" {
   for_each = toset(var.locations)
 
   name = format("snet-fa-01-%s-%s-%s", random_id.environment_id.hex, var.environment, each.value)
@@ -42,7 +42,7 @@ resource "azurerm_subnet" "fa-01" {
   }
 }
 
-resource "azurerm_subnet" "fa-02" {
+resource "azurerm_subnet" "fa_02" {
   for_each = toset(var.locations)
 
   name = format("snet-fa-02-%s-%s-%s", random_id.environment_id.hex, var.environment, each.value)
@@ -62,7 +62,7 @@ resource "azurerm_subnet" "fa-02" {
   }
 }
 
-resource "azurerm_subnet" "la-01" {
+resource "azurerm_subnet" "la_01" {
   for_each = toset(var.locations)
 
   name = format("snet-la-01-%s-%s-%s", random_id.environment_id.hex, var.environment, each.value)
@@ -82,7 +82,7 @@ resource "azurerm_subnet" "la-01" {
   }
 }
 
-resource "azurerm_subnet" "la-02" {
+resource "azurerm_subnet" "la_02" {
   for_each = toset(var.locations)
 
   name = format("snet-la-02-%s-%s-%s", random_id.environment_id.hex, var.environment, each.value)
