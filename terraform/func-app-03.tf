@@ -1,28 +1,7 @@
-resource "azurerm_resource_group" "fa_01" {
+resource "azurerm_storage_account" "fa_03" {
   for_each = toset(var.locations)
 
-  name     = format("rg-fa-%s-%s-%s-01", random_id.environment_id.hex, var.environment, each.value)
-  location = var.locations[0]
-
-  tags = var.tags
-}
-
-resource "azurerm_service_plan" "fa_01" {
-  for_each = toset(var.locations)
-
-  name = format("sp-fa-%s-%s-%s-01", random_id.environment_id.hex, var.environment, each.value)
-
-  resource_group_name = azurerm_resource_group.fa_01[each.value].name
-  location            = azurerm_resource_group.fa_01[each.value].location
-
-  os_type  = "Linux" // Could be Windows or Linux
-  sku_name = "EP1"   // Values could be EP1, EP2, EP3
-}
-
-resource "azurerm_storage_account" "fa_01" {
-  for_each = toset(var.locations)
-
-  name = format("sa%s01", lower(random_string.location[each.value].result))
+  name = format("sa%s03", lower(random_string.location[each.value].result))
 
   resource_group_name = azurerm_resource_group.fa_01[each.value].name
   location            = azurerm_resource_group.fa_01[each.value].location
@@ -37,10 +16,10 @@ resource "azurerm_storage_account" "fa_01" {
 }
 
 // Create the private endpoints for the storage account. The function needs different endpoints depending on what features are being used.
-resource "azurerm_private_endpoint" "fa_01_blob" {
+resource "azurerm_private_endpoint" "fa_03_blob" {
   for_each = toset(var.locations)
 
-  name = format("pe-%s-blob-01", azurerm_storage_account.fa_01[each.value].name)
+  name = format("pe-%s-blob-03", azurerm_storage_account.fa_03[each.value].name)
 
   resource_group_name = azurerm_resource_group.fa_01[each.value].name
   location            = azurerm_resource_group.fa_01[each.value].location
@@ -55,17 +34,17 @@ resource "azurerm_private_endpoint" "fa_01_blob" {
   }
 
   private_service_connection {
-    name                           = format("pe-%s-blob-01", azurerm_storage_account.fa_01[each.value].name)
-    private_connection_resource_id = azurerm_storage_account.fa_01[each.value].id
+    name                           = format("pe-%s-blob-03", azurerm_storage_account.fa_03[each.value].name)
+    private_connection_resource_id = azurerm_storage_account.fa_03[each.value].id
     subresource_names              = ["blob"]
     is_manual_connection           = false
   }
 }
 
-resource "azurerm_private_endpoint" "fa_01_table" {
+resource "azurerm_private_endpoint" "fa_03_table" {
   for_each = toset(var.locations)
 
-  name = format("pe-%s-table-01", azurerm_storage_account.fa_01[each.value].name)
+  name = format("pe-%s-table-03", azurerm_storage_account.fa_03[each.value].name)
 
   resource_group_name = azurerm_resource_group.fa_01[each.value].name
   location            = azurerm_resource_group.fa_01[each.value].location
@@ -80,17 +59,17 @@ resource "azurerm_private_endpoint" "fa_01_table" {
   }
 
   private_service_connection {
-    name                           = format("pe-%s-table-01", azurerm_storage_account.fa_01[each.value].name)
-    private_connection_resource_id = azurerm_storage_account.fa_01[each.value].id
+    name                           = format("pe-%s-table-03", azurerm_storage_account.fa_03[each.value].name)
+    private_connection_resource_id = azurerm_storage_account.fa_03[each.value].id
     subresource_names              = ["table"]
     is_manual_connection           = false
   }
 }
 
-resource "azurerm_private_endpoint" "fa_01_queue" {
+resource "azurerm_private_endpoint" "fa_03_queue" {
   for_each = toset(var.locations)
 
-  name = format("pe-%s-queue-01", azurerm_storage_account.fa_01[each.value].name)
+  name = format("pe-%s-queue-03", azurerm_storage_account.fa_03[each.value].name)
 
   resource_group_name = azurerm_resource_group.fa_01[each.value].name
   location            = azurerm_resource_group.fa_01[each.value].location
@@ -105,17 +84,17 @@ resource "azurerm_private_endpoint" "fa_01_queue" {
   }
 
   private_service_connection {
-    name                           = format("pe-%s-queue-01", azurerm_storage_account.fa_01[each.value].name)
-    private_connection_resource_id = azurerm_storage_account.fa_01[each.value].id
+    name                           = format("pe-%s-queue-03", azurerm_storage_account.fa_03[each.value].name)
+    private_connection_resource_id = azurerm_storage_account.fa_03[each.value].id
     subresource_names              = ["queue"]
     is_manual_connection           = false
   }
 }
 
-resource "azurerm_private_endpoint" "fa_01_file" {
+resource "azurerm_private_endpoint" "fa_03_file" {
   for_each = toset(var.locations)
 
-  name = format("pe-%s-file-01", azurerm_storage_account.fa_01[each.value].name)
+  name = format("pe-%s-file-03", azurerm_storage_account.fa_03[each.value].name)
 
   resource_group_name = azurerm_resource_group.fa_01[each.value].name
   location            = azurerm_resource_group.fa_01[each.value].location
@@ -130,25 +109,25 @@ resource "azurerm_private_endpoint" "fa_01_file" {
   }
 
   private_service_connection {
-    name                           = format("pe-%s-file-01", azurerm_storage_account.fa_01[each.value].name)
-    private_connection_resource_id = azurerm_storage_account.fa_01[each.value].id
+    name                           = format("pe-%s-file-03", azurerm_storage_account.fa_03[each.value].name)
+    private_connection_resource_id = azurerm_storage_account.fa_03[each.value].id
     subresource_names              = ["file"]
     is_manual_connection           = false
   }
 }
 
 //Create the Linux function app; this sets the application stack as dotnet for example only
-resource "azurerm_linux_function_app" "fa_01" {
+resource "azurerm_linux_function_app" "fa_03" {
   for_each = toset(var.locations)
 
-  name = format("fa-%s-%s-%s-01", random_id.environment_id.hex, var.environment, each.value)
+  name = format("fa-%s-%s-%s-03", random_id.environment_id.hex, var.environment, each.value)
 
   resource_group_name = azurerm_resource_group.fa_01[each.value].name
   location            = azurerm_resource_group.fa_01[each.value].location
 
   // Consider replacing this with managed identity access over access keys
-  storage_account_name       = azurerm_storage_account.fa_01[each.value].name
-  storage_account_access_key = azurerm_storage_account.fa_01[each.value].primary_access_key
+  storage_account_name       = azurerm_storage_account.fa_03[each.value].name
+  storage_account_access_key = azurerm_storage_account.fa_03[each.value].primary_access_key
   service_plan_id            = azurerm_service_plan.fa_01[each.value].id
 
   // Set the virtual network integration that will be used for *outbound* traffic from the function app
@@ -174,17 +153,17 @@ resource "azurerm_linux_function_app" "fa_01" {
 
   // For the first time run scenario, we need to ensure that the private endpoints are created before the function app
   depends_on = [
-    azurerm_private_endpoint.fa_01_blob,
-    azurerm_private_endpoint.fa_01_table,
-    azurerm_private_endpoint.fa_01_queue,
-    azurerm_private_endpoint.fa_01_file
+    azurerm_private_endpoint.fa_03_blob,
+    azurerm_private_endpoint.fa_03_table,
+    azurerm_private_endpoint.fa_03_queue,
+    azurerm_private_endpoint.fa_03_file
   ]
 }
 
-resource "azurerm_private_endpoint" "fa_01_fa_sites_pe" {
+resource "azurerm_private_endpoint" "fa_03_fa_sites_pe" {
   for_each = toset(var.locations)
 
-  name = format("pe-%s-sites-01", azurerm_storage_account.fa_01[each.value].name)
+  name = format("pe-%s-sites-03", azurerm_storage_account.fa_03[each.value].name)
 
   resource_group_name = azurerm_resource_group.fa_01[each.value].name
   location            = azurerm_resource_group.fa_01[each.value].location
@@ -199,8 +178,8 @@ resource "azurerm_private_endpoint" "fa_01_fa_sites_pe" {
   }
 
   private_service_connection {
-    name                           = format("pe-%s-sites-01", azurerm_linux_function_app.fa_01[each.value].name)
-    private_connection_resource_id = azurerm_linux_function_app.fa_01[each.value].id
+    name                           = format("pe-%s-sites-03", azurerm_linux_function_app.fa_03[each.value].name)
+    private_connection_resource_id = azurerm_linux_function_app.fa_03[each.value].id
     subresource_names              = ["sites"]
     is_manual_connection           = false
   }
