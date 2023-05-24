@@ -65,7 +65,7 @@ resource "azurerm_subnet" "app_02" {
 resource "azurerm_subnet" "app_03" {
   for_each = toset(var.locations)
 
-  name = format("snet-app-01-%s-%s-%s", random_id.environment_id.hex, var.environment, each.value)
+  name = format("snet-app-03-%s-%s-%s", random_id.environment_id.hex, var.environment, each.value)
 
   resource_group_name  = azurerm_resource_group.rg[each.value].name
   virtual_network_name = azurerm_virtual_network.apps[each.value].name
@@ -85,7 +85,7 @@ resource "azurerm_subnet" "app_03" {
 resource "azurerm_subnet" "app_04" {
   for_each = toset(var.locations)
 
-  name = format("snet-app-02-%s-%s-%s", random_id.environment_id.hex, var.environment, each.value)
+  name = format("snet-app-04-%s-%s-%s", random_id.environment_id.hex, var.environment, each.value)
 
   resource_group_name  = azurerm_resource_group.rg[each.value].name
   virtual_network_name = azurerm_virtual_network.apps[each.value].name
