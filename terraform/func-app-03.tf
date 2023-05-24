@@ -1,3 +1,15 @@
+resource "azurerm_service_plan" "fa_03" {
+  for_each = toset(var.locations)
+
+  name = format("sp-fa-%s-%s-%s-03", random_id.environment_id.hex, var.environment, each.value)
+
+  resource_group_name = azurerm_resource_group.fa_01[each.value].name
+  location            = azurerm_resource_group.fa_01[each.value].location
+
+  os_type  = "Linux" // Could be Windows or Linux
+  sku_name = "EP1"   // Values could be EP1, EP2, EP3
+}
+
 resource "azurerm_storage_account" "fa_03" {
   for_each = toset(var.locations)
 
