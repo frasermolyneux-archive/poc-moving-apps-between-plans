@@ -29,6 +29,15 @@ resource "random_id" "environment_id" {
   byte_length = 6
 }
 
+// Create a random string that will be used when creating resources to prevent naming conflicts
+resource "random_string" "location" {
+  for_each = toset(var.locations)
+
+  length  = 12
+  special = false
+}
+
+
 resource "time_rotating" "rotate" {
   rotation_days = 30
 }
