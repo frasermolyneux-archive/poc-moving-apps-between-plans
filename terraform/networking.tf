@@ -22,10 +22,10 @@ resource "azurerm_subnet" "endpoints" {
 }
 
 // Create a subnet that will host the Function App's App Service Plan for the VNet integration
-resource "azurerm_subnet" "fa_01" {
+resource "azurerm_subnet" "app_01" {
   for_each = toset(var.locations)
 
-  name = format("snet-fa-01-%s-%s-%s", random_id.environment_id.hex, var.environment, each.value)
+  name = format("snet-app-01-%s-%s-%s", random_id.environment_id.hex, var.environment, each.value)
 
   resource_group_name  = azurerm_resource_group.rg[each.value].name
   virtual_network_name = azurerm_virtual_network.apps[each.value].name
@@ -42,10 +42,10 @@ resource "azurerm_subnet" "fa_01" {
   }
 }
 
-resource "azurerm_subnet" "fa_02" {
+resource "azurerm_subnet" "app_02" {
   for_each = toset(var.locations)
 
-  name = format("snet-fa-02-%s-%s-%s", random_id.environment_id.hex, var.environment, each.value)
+  name = format("snet-app-02-%s-%s-%s", random_id.environment_id.hex, var.environment, each.value)
 
   resource_group_name  = azurerm_resource_group.rg[each.value].name
   virtual_network_name = azurerm_virtual_network.apps[each.value].name
@@ -62,10 +62,10 @@ resource "azurerm_subnet" "fa_02" {
   }
 }
 
-resource "azurerm_subnet" "la_01" {
+resource "azurerm_subnet" "app_03" {
   for_each = toset(var.locations)
 
-  name = format("snet-la-01-%s-%s-%s", random_id.environment_id.hex, var.environment, each.value)
+  name = format("snet-app-01-%s-%s-%s", random_id.environment_id.hex, var.environment, each.value)
 
   resource_group_name  = azurerm_resource_group.rg[each.value].name
   virtual_network_name = azurerm_virtual_network.apps[each.value].name
@@ -82,15 +82,35 @@ resource "azurerm_subnet" "la_01" {
   }
 }
 
-resource "azurerm_subnet" "la_02" {
+resource "azurerm_subnet" "app_04" {
   for_each = toset(var.locations)
 
-  name = format("snet-la-02-%s-%s-%s", random_id.environment_id.hex, var.environment, each.value)
+  name = format("snet-app-02-%s-%s-%s", random_id.environment_id.hex, var.environment, each.value)
 
   resource_group_name  = azurerm_resource_group.rg[each.value].name
   virtual_network_name = azurerm_virtual_network.apps[each.value].name
 
   address_prefixes = ["10.0.5.0/24"]
+
+  delegation {
+    name = "delegation"
+
+    service_delegation {
+      name    = "Microsoft.Web/serverFarms"
+      actions = ["Microsoft.Network/virtualNetworks/subnets/action", "Microsoft.Network/virtualNetworks/subnets/join/action", "Microsoft.Network/virtualNetworks/subnets/prepareNetworkPolicies/action"]
+    }
+  }
+}
+
+resource "azurerm_subnet" "app_05" {
+  for_each = toset(var.locations)
+
+  name = format("snet-app-05-%s-%s-%s", random_id.environment_id.hex, var.environment, each.value)
+
+  resource_group_name  = azurerm_resource_group.rg[each.value].name
+  virtual_network_name = azurerm_virtual_network.apps[each.value].name
+
+  address_prefixes = ["10.0.6.0/24"]
 
   delegation {
     name = "delegation"
