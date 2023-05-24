@@ -1,15 +1,19 @@
 resource "azurerm_resource_group" "fa_01" {
-  name     = format("rg-fa-%s-%s-01", random_id.environment_id.hex, var.environment)
+  for_each = toset(var.locations)
+
+  name     = format("rg-fa-%s-%s-%s-01", random_id.environment_id.hex, var.environment, each.value)
   location = var.locations[0]
 
   tags = var.tags
 }
 
 resource "azurerm_service_plan" "fa_01" {
-  name = format("sp-fa-%s-%s-01", random_id.environment_id.hex, var.environment)
+  for_each = toset(var.locations)
 
-  resource_group_name = azurerm_resource_group.fa_01.name
-  location            = azurerm_resource_group.fa_01.location
+  name = format("sp-fa-%s-%s-%s-01", random_id.environment_id.hex, var.environment, each.value)
+
+  resource_group_name = azurerm_resource_group.fa_01[each.value].name
+  location            = azurerm_resource_group.fa_01[each.value].location
 
   os_type  = "Linux" // Could be Windows or Linux
   sku_name = "EP1"   // Values could be EP1, EP2, EP3
@@ -18,7 +22,7 @@ resource "azurerm_service_plan" "fa_01" {
 resource "azurerm_storage_account" "fa_01" {
   for_each = toset(var.locations)
 
-  name = format("sa%s", lower(random_string.location[each.value].result))
+  name = format("sa%s01", lower(random_string.location[each.value].result))
 
   resource_group_name = azurerm_resource_group.fa_01[each.value].name
   location            = azurerm_resource_group.fa_01[each.value].location
@@ -36,7 +40,7 @@ resource "azurerm_storage_account" "fa_01" {
 resource "azurerm_private_endpoint" "fa_01_blob" {
   for_each = toset(var.locations)
 
-  name = format("pe-%s-blob", azurerm_storage_account.fa_01[each.value].name)
+  name = format("pe-%s-blob-01", azurerm_storage_account.fa_01[each.value].name)
 
   resource_group_name = azurerm_resource_group.fa_01[each.value].name
   location            = azurerm_resource_group.fa_01[each.value].location
@@ -51,7 +55,7 @@ resource "azurerm_private_endpoint" "fa_01_blob" {
   }
 
   private_service_connection {
-    name                           = format("pe-%s-blob", azurerm_storage_account.fa_01[each.value].name)
+    name                           = format("pe-%s-blob-01", azurerm_storage_account.fa_01[each.value].name)
     private_connection_resource_id = azurerm_storage_account.fa_01[each.value].id
     subresource_names              = ["blob"]
     is_manual_connection           = false
@@ -61,7 +65,7 @@ resource "azurerm_private_endpoint" "fa_01_blob" {
 resource "azurerm_private_endpoint" "fa_01_table" {
   for_each = toset(var.locations)
 
-  name = format("pe-%s-table", azurerm_storage_account.fa_01[each.value].name)
+  name = format("pe-%s-table-01", azurerm_storage_account.fa_01[each.value].name)
 
   resource_group_name = azurerm_resource_group.fa_01[each.value].name
   location            = azurerm_resource_group.fa_01[each.value].location
@@ -76,7 +80,7 @@ resource "azurerm_private_endpoint" "fa_01_table" {
   }
 
   private_service_connection {
-    name                           = format("pe-%s-table", azurerm_storage_account.fa_01[each.value].name)
+    name                           = format("pe-%s-table-01", azurerm_storage_account.fa_01[each.value].name)
     private_connection_resource_id = azurerm_storage_account.fa_01[each.value].id
     subresource_names              = ["table"]
     is_manual_connection           = false
@@ -86,7 +90,7 @@ resource "azurerm_private_endpoint" "fa_01_table" {
 resource "azurerm_private_endpoint" "fa_01_queue" {
   for_each = toset(var.locations)
 
-  name = format("pe-%s-queue", azurerm_storage_account.fa_01[each.value].name)
+  name = format("pe-%s-queue-01", azurerm_storage_account.fa_01[each.value].name)
 
   resource_group_name = azurerm_resource_group.fa_01[each.value].name
   location            = azurerm_resource_group.fa_01[each.value].location
@@ -101,7 +105,7 @@ resource "azurerm_private_endpoint" "fa_01_queue" {
   }
 
   private_service_connection {
-    name                           = format("pe-%s-queue", azurerm_storage_account.fa_01[each.value].name)
+    name                           = format("pe-%s-queue-01", azurerm_storage_account.fa_01[each.value].name)
     private_connection_resource_id = azurerm_storage_account.fa_01[each.value].id
     subresource_names              = ["queue"]
     is_manual_connection           = false
@@ -111,7 +115,7 @@ resource "azurerm_private_endpoint" "fa_01_queue" {
 resource "azurerm_private_endpoint" "fa_01_file" {
   for_each = toset(var.locations)
 
-  name = format("pe-%s-file", azurerm_storage_account.fa_01[each.value].name)
+  name = format("pe-%s-file-01", azurerm_storage_account.fa_01[each.value].name)
 
   resource_group_name = azurerm_resource_group.fa_01[each.value].name
   location            = azurerm_resource_group.fa_01[each.value].location
@@ -126,7 +130,7 @@ resource "azurerm_private_endpoint" "fa_01_file" {
   }
 
   private_service_connection {
-    name                           = format("pe-%s-file", azurerm_storage_account.fa_01[each.value].name)
+    name                           = format("pe-%s-file-01", azurerm_storage_account.fa_01[each.value].name)
     private_connection_resource_id = azurerm_storage_account.fa_01[each.value].id
     subresource_names              = ["file"]
     is_manual_connection           = false
@@ -137,7 +141,7 @@ resource "azurerm_private_endpoint" "fa_01_file" {
 resource "azurerm_linux_function_app" "fa_01" {
   for_each = toset(var.locations)
 
-  name = format("fa-%s-%s-%s", random_id.environment_id.hex, var.environment, each.value)
+  name = format("fa-%s-%s-%s-01", random_id.environment_id.hex, var.environment, each.value)
 
   resource_group_name = azurerm_resource_group.fa_01[each.value].name
   location            = azurerm_resource_group.fa_01[each.value].location
@@ -180,7 +184,7 @@ resource "azurerm_linux_function_app" "fa_01" {
 resource "azurerm_private_endpoint" "fa_01_fa_sites_pe" {
   for_each = toset(var.locations)
 
-  name = format("pe-%s-sites", azurerm_storage_account.fa_01[each.value].name)
+  name = format("pe-%s-sites-01", azurerm_storage_account.fa_01[each.value].name)
 
   resource_group_name = azurerm_resource_group.fa_01[each.value].name
   location            = azurerm_resource_group.fa_01[each.value].location
@@ -195,7 +199,7 @@ resource "azurerm_private_endpoint" "fa_01_fa_sites_pe" {
   }
 
   private_service_connection {
-    name                           = format("pe-%s-sites", azurerm_linux_function_app.fa_01[each.value].name)
+    name                           = format("pe-%s-sites-01", azurerm_linux_function_app.fa_01[each.value].name)
     private_connection_resource_id = azurerm_linux_function_app.fa_01[each.value].id
     subresource_names              = ["sites"]
     is_manual_connection           = false
